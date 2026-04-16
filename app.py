@@ -2,114 +2,113 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# --- PAGE CONFIGURATION ---
+# -----------------------
+# PAGE CONFIG
+# -----------------------
 st.set_page_config(
-    page_title="Salary Predictor Pro",
-    page_icon="💼",
-    layout="centered",
-    initial_sidebar_state="collapsed",
+    page_title="ML Regression App",
+    page_icon="✨",
+    layout="centered"
 )
 
-# --- CUSTOM CSS FOR FANCY UI ---
+# -----------------------
+# CUSTOM CSS (FANCY UI)
+# -----------------------
 st.markdown("""
     <style>
-    /* Main background */
-    .stApp {
-        background-color: #f4f7f6;
+    body {
+        background: linear-gradient(135deg, #1f4037, #99f2c8);
     }
-    
-    /* Typography and Header styling */
+
+    .main {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+    }
+
     h1 {
-        color: #1E3A8A;
         text-align: center;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 700;
-        margin-bottom: 5px;
+        color: #1f4037;
     }
-    .subtitle {
-        text-align: center;
-        color: #64748B;
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-    }
-    
-    /* Customizing the prediction button */
+
     .stButton>button {
-        background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+        background: linear-gradient(90deg, #1f4037, #99f2c8);
         color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-size: 20px;
-        font-weight: bold;
-        transition: all 0.3s ease;
+        border-radius: 10px;
+        height: 3em;
         width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-size: 18px;
+        border: none;
     }
+
     .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        color: #ffffff;
+        background: linear-gradient(90deg, #99f2c8, #1f4037);
+        color: black;
     }
-    
-    /* Card layout for the result */
-    .result-card {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+
+    .result-box {
+        background: #1f4037;
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
         text-align: center;
-        margin-top: 30px;
-        border-top: 4px solid #3B82F6;
+        font-size: 24px;
+        margin-top: 20px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER SECTION ---
-st.markdown("<h1>💼 Career Value Predictor</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>AI-Powered Salary Estimation based on Experience</div>", unsafe_allow_html=True)
-st.write("---")
-
-# --- MODEL LOADING ---
+# -----------------------
+# LOAD MODEL
+# -----------------------
 @st.cache_resource
 def load_model():
-    with open('Regression.pkl', 'rb') as file:
-        return pickle.load(file)
+    with open("Regression.pkl", "rb") as f:
+        model = pickle.load(f)
+    return model
 
-try:
-    model = load_model()
-except FileNotFoundError:
-    st.error("⚠️ Model file 'Regression.pkl' not found. Please upload it to your repository.")
-    st.stop()
+model = load_model()
 
-# --- INPUT SECTION ---
-st.markdown("### ✨ Enter Your Details")
-# Using a slider for a smooth user experience
-years_experience = st.slider(
-    "Years of Experience", 
-    min_value=0.0, 
-    max_value=50.0, 
-    value=5.0, 
-    step=0.5,
-    help="Slide to select your total years of professional experience."
-)
+# -----------------------
+# TITLE
+# -----------------------
+st.markdown("<h1>✨ Regression Predictor</h1>", unsafe_allow_html=True)
+st.write("Enter values below to get predictions")
 
-st.write("") # Spacer
+# -----------------------
+# INPUT FIELDS
+# ⚠️ EDIT THESE BASED ON YOUR DATASET
+# -----------------------
 
-# --- PREDICTION SECTION ---
-if st.button("🔮 Predict Salary"):
-    with st.spinner("Analyzing market data..."):
-        # The model expects a 2D array for features
-        input_data = np.array([[years_experience]])
-        prediction = model.predict(input_data)[0]
-        
-        # Trigger success animation
-        st.balloons()
-        
-        # Display the result in the custom styled card
-        st.markdown(f"""
-            <div class="result-card">
-                <p style='color: #64748B; font-size: 1.2rem; margin-bottom: 5px;'>Estimated Compensation</p>
-                <h2 style='color: #10B981; font-size: 3rem; margin: 0;'>${prediction:,.2f}</h2>
-            </div>
-        """, unsafe_allow_html=True)
+col1, col2 = st.columns(2)
+
+with col1:
+    feature1 = st.number_input("Feature 1", value=0.0)
+    feature2 = st.number_input("Feature 2", value=0.0)
+
+with col2:
+    feature3 = st.number_input("Feature 3", value=0.0)
+    feature4 = st.number_input("Feature 4", value=0.0)
+
+# -----------------------
+# PREDICTION
+# -----------------------
+if st.button("🚀 Predict"):
+    try:
+        input_data = np.array([[feature1, feature2, feature3, feature4]])
+        prediction = model.predict(input_data)
+
+        st.markdown(
+            f'<div class="result-box">Prediction: {prediction[0]:.2f}</div>',
+            unsafe_allow_html=True
+        )
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+
+# -----------------------
+# FOOTER
+# -----------------------
+st.markdown("---")
+st.caption("Built with ❤️ using Streamlit")
